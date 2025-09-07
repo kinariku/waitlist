@@ -28,8 +28,8 @@ export const translations: Record<string, Translations> = {
         placeholder: ""
       },
       agreeToTerms: {
-        label: "",
-        required: ""
+        label: "I agree to the terms",
+        required: "You must agree to the terms"
       },
       submit: "Join Waitlist",
       submitting: "Joining...",
@@ -99,8 +99,8 @@ export const translations: Record<string, Translations> = {
         placeholder: ""
       },
       agreeToTerms: {
-        label: "",
-        required: ""
+        label: "利用規約に同意します",
+        required: "利用規約への同意が必要です"
       },
       submit: "ウェイトリストに参加",
       submitting: "参加中...",
