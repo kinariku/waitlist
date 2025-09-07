@@ -10,6 +10,8 @@ interface WaitlistFormProps {
 const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLanguage }) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'already_registered'>('idle');
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
@@ -36,7 +38,7 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLangua
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
       setError(translations.form.email.required);
       return;
@@ -45,6 +47,15 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLangua
     if (!validateEmail(email)) {
       setError(translations.form.email.invalid);
       return;
+    }
+
+    if (!consent) {
+      setConsentError(translations.form.agreeToTerms.required);
+      return;
+    }
+
+    if (consentError) {
+      setConsentError('');
     }
 
     // 既に登録済みのメールアドレスかチェック
@@ -63,7 +74,7 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLangua
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, consent }),
       });
 
       if (response.ok) {
@@ -71,6 +82,7 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLangua
         // 登録成功時にローカルストレージに保存
         localStorage.setItem('waitlist_registered_email', email.toLowerCase());
         setEmail('');
+        setConsent(false);
       } else {
         setSubmitStatus('error');
       }
@@ -84,6 +96,7 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLangua
   const handleRetry = () => {
     setSubmitStatus('idle');
     setError('');
+    setConsentError('');
   };
 
   const handleLogout = () => {
@@ -91,6 +104,8 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLangua
     setIsAlreadyRegistered(false);
     setSubmitStatus('idle');
     setEmail('');
+    setConsent(false);
+    setConsentError('');
   };
 
     if (submitStatus === 'success') {
@@ -258,6 +273,28 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({ translations, currentLangua
           {error && (
             <p id="email-error" className="mt-2 text-sm text-red-600 font-medium" role="alert">
               {error}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="inline-flex items-center">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => {
+                setConsent(e.target.checked);
+                if (consentError) {
+                  setConsentError('');
+                }
+              }}
+              className="mr-2"
+            />
+            {translations.form.agreeToTerms.label}
+          </label>
+          {consentError && (
+            <p className="mt-2 text-sm text-red-600 font-medium" role="alert">
+              {consentError}
             </p>
           )}
         </div>
